@@ -1,2 +1,2 @@
-supabase link --project-ref fgnbpzyltzbtwygvsakc
+supabase link --project-ref tamjwkgpvcfqhjtvlxut
 supabase db push

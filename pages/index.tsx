@@ -211,7 +211,7 @@ export default function Home() {
     setLoggedInDb((prev) => ({ ...prev, [requestId]: true }));
   }
 
-  async function getResponse(): Promise<void> {
+  async function getResponse(onLogComplete: () => void): Promise<void> {
     if (chatHistory.length <= 0) {
       alert("AH! Something went wrong. Please refresh the page.");
       throw new Error("No chat history - this should not be possible");
@@ -250,9 +250,10 @@ export default function Home() {
         },
         chatGPT3Data
       );
+      onLogComplete();
     });
   }
-  async function getInitialResponse() {
+  async function getInitialResponse(onLogComplete: () => void): Promise<void> {
     const requestId = uuidv4();
     const [chatGPT3Data, imagePrompt, messageWithoutImage] =
       await requestPrompt({
@@ -278,44 +279,34 @@ export default function Home() {
         },
         chatGPT3Data
       );
+      onLogComplete();
     });
   }
 
   function submitRequestToBackend() {
+    setError("");
     setIsLoading(true);
     setCurrentInput("");
     if (scene === "") {
       setScene(currentInput);
 
-      getInitialResponse()
-        .then(() => {
-          setIsLoading(false);
-        })
-        .catch((e) => {
-          setIsLoading(false);
-          console.log("error", e);
-          setError(
-            "Error getting response.. Please note, " +
-              "chatGPT API is not officially supported " +
-              "and this is using a reversed engineered API.\n" +
-              "Please try again later.\n\n See console for more details."
-          );
-        });
+      getInitialResponse(() => setIsLoading(false)).catch((e) => {
+        setIsLoading(false);
+        console.log("error", e);
+        setError(
+          "Error getting response.. Please note, " +
+            "GPT3 is a bit buggy, maybe just try again in a minute?"
+        );
+      });
     } else {
-      getResponse()
-        .then(() => {
-          setIsLoading(false);
-        })
-        .catch((e) => {
-          setIsLoading(false);
-          console.log("error", e);
-          setError(
-            "Error getting response.. Please note, " +
-              "chatGPT API is not officially supported " +
-              "and this is using a reversed engineered API.\n" +
-              "Please try again later.\n\n See console for more details."
-          );
-        });
+      getResponse(() => setIsLoading(false)).catch((e) => {
+        setIsLoading(false);
+        console.log("error", e);
+        setError(
+          "Error getting response.. Please note, " +
+            "GPT3 is a bit buggy, maybe just try again in a minute?"
+        );
+      });
     }
   }
 
