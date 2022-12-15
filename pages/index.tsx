@@ -427,7 +427,7 @@ export default function Home() {
                           className="cursor-pointer"
                           onClick={() => {
                             navigator.clipboard.writeText(
-                              `https://aistorychat.com?id=${chatMessage.id}`
+                              `https://dreamsubmarine.com?id=${chatMessage.id}`
                             );
                           }}
                         >
@@ -436,7 +436,7 @@ export default function Home() {
                         <a
                           href={`https://twitter.com/intent/tweet?text=${
                             `My new story about ${scene}! ` +
-                            "https://aistorychat.com?id=" +
+                            "https://dreamsubmarine.com?id=" +
                             chatMessage.id
                           }`}
                           target="_blank"
