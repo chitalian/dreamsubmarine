@@ -53,8 +53,8 @@ export async function getOpenAICompletion(
     body: JSON.stringify({
       prompt,
       max_tokens: 256,
-      temperature: 0.5,
-      frequency_penalty: 1.3,
+      temperature: 0.7,
+      frequency_penalty: 1.0,
       presence_penalty: 1.0,
       logprobs: 1,
     }),
