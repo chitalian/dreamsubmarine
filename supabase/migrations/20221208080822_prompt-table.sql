@@ -12,8 +12,7 @@ CREATE TABLE IF NOT EXISTS public.prompts
     id uuid NOT NULL,
     response_without_image jsonb NOT NULL,
     last_id uuid,
-    openai_parent_id uuid,
-    openai_conversation_id uuid,
+    root_id uuid,
     input text COLLATE pg_catalog."default" NOT NULL,
     CONSTRAINT prompts_pkey PRIMARY KEY (id)
 )

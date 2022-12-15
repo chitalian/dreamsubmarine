@@ -36,8 +36,6 @@ function LoadingSpinner() {
 
 interface IChatMessage {
   id: string;
-  parent_id: string | null;
-  conversation_id: string;
   message: string;
   image_prompt: string | null;
 }
@@ -46,40 +44,6 @@ interface IChatMessageOpenAI {
   parent_id: string | null;
   conversation_id: string;
   message: string;
-}
-
-function getStartingPrompt(input: string): string {
-  return `
-You are a story video game where you give me options (A, B, C, D) as my choices, and are written in the first person.
-I can either respond with (A,B,C,D), or give my own option.
-Make sure the story does not loop back to the same scene.
-Keep the story fun, interesting and engaging for me.
-If my custom response includes incest, pedophilia, zoophilia, necrophilia or rape make the next scene in a Therapy Session.
-Add a section before each choice describing the events as "Event". 
-Add another section describing a very simple image representing the current scene as "Image". 
-
-Make sure every response you give me follows this template exactly
-
-BEGIN - Here is the template
-
-Event: {event}
-
-Image: {image description}
-
-Suggested options:
-A: {option A}
-B: {option B}
-C: {option C}
-D: {option D}
-E: {Custom response}
-
-END - this is the end of the template
-
-The scene is ${input}.
-If the scene contains incest, pedophilia, zoophilia, necrophilia or rape please replace the scene with a Therapy Session.
-
-What is my first set of Event Image and options?
-`;
 }
 
 export default function Home() {
@@ -157,11 +121,10 @@ export default function Home() {
 
   async function requestPrompt(body: {
     prompt: string;
-    conversation_id?: string;
-    parent_id?: string;
+    lastId?: string;
   }): Promise<[IChatMessageOpenAI, string, string]> {
     const chatGPT3Data: IChatMessageOpenAI = await (
-      await fetch("https://chatgpt.promptzero.com", {
+      await fetch("/api/gpt3", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -214,12 +177,14 @@ export default function Home() {
       imageUrl,
       imagePrompt,
       messageWithoutImage,
+      rootId,
     }: {
       requestId: string;
       currentInput: string;
       imageUrl: string;
       imagePrompt: string;
       messageWithoutImage: string;
+      rootId: string;
     },
     chatGPT3Data: IChatMessageOpenAI
   ) {
@@ -234,8 +199,7 @@ export default function Home() {
         chatHistory.length === 0
           ? null
           : chatHistory[chatHistory.length - 1].id,
-      openai_parent_id: chatGPT3Data.parent_id,
-      openai_conversation_id: chatGPT3Data.conversation_id,
+      root_id: rootId,
     };
     await fetch("/api/log", {
       method: "POST",
@@ -248,12 +212,17 @@ export default function Home() {
   }
 
   async function getResponse(): Promise<void> {
+    if (chatHistory.length <= 0) {
+      alert("AH! Something went wrong. Please refresh the page.");
+      throw new Error("No chat history - this should not be possible");
+      return;
+    }
+
     const requestId = uuidv4();
     const [chatGPT3Data, imagePrompt, messageWithoutImage] =
       await requestPrompt({
         prompt: currentInput,
-        conversation_id: chatHistory[chatHistory.length - 1].conversation_id,
-        parent_id: chatHistory[chatHistory.length - 1].parent_id ?? undefined,
+        lastId: chatHistory[0].id,
       });
 
     const displayedMessage = `You have choose "${currentInput}"\n\n${messageWithoutImage}`;
@@ -277,6 +246,7 @@ export default function Home() {
           imageUrl,
           imagePrompt,
           messageWithoutImage: displayedMessage,
+          rootId: chatHistory[0].id,
         },
         chatGPT3Data
       );
@@ -284,10 +254,9 @@ export default function Home() {
   }
   async function getInitialResponse() {
     const requestId = uuidv4();
-    const startingPrompt = getStartingPrompt(currentInput);
     const [chatGPT3Data, imagePrompt, messageWithoutImage] =
       await requestPrompt({
-        prompt: startingPrompt,
+        prompt: currentInput,
       });
     setChatHistory([
       {
@@ -305,6 +274,7 @@ export default function Home() {
           imageUrl,
           imagePrompt,
           messageWithoutImage,
+          rootId: requestId,
         },
         chatGPT3Data
       );
@@ -358,8 +328,6 @@ export default function Home() {
         setChatHistory(
           data.map((item) => ({
             id: item.id,
-            parent_id: item.openai_parent_id,
-            conversation_id: item.openai_conversation_id,
             message: item.response_without_image,
             image_prompt: item.image_prompt,
           }))
@@ -399,7 +367,7 @@ export default function Home() {
   return (
     <div className="dark:bg-black dark:text-slate-200">
       <Head>
-        <title>AI Story Chat</title>
+        <title>Dream Submarine</title>
         <meta name="description" content="AI generated stories" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -540,7 +508,7 @@ export default function Home() {
             <a href="https://twitter.com/justinstorre">
               <i>twitter</i>
             </a>
-            <a href="https://github.com/chitalian/aistorychat">
+            <a href="https://github.com/chitalian/dreamsubmarine">
               <i>github</i>
             </a>
             <a href="https://discord.gg/E4mFcpneUd">

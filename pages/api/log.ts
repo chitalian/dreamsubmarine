@@ -9,8 +9,7 @@ export interface promptsDB {
   image_prompt: string;
   response_without_image: string;
   last_id: string | null;
-  openai_parent_id: string | null;
-  openai_conversation_id: string;
+  root_id: string;
 }
 
 export default async function handler(
