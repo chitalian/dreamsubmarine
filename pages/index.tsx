@@ -381,7 +381,7 @@ export default function Home() {
               <i className="text-red-500 text-xs">{error}</i>
             </div>
           ) : (
-            "AI Story Chat"
+            "Dream Submarine"
           )}
         </h1>
         <div className="flex flex-col-reverse w-full flex-1 text-center my-40 overflow-auto gap-5 justify-center items-center">
