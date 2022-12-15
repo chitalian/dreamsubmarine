@@ -96,8 +96,12 @@ export default async function handler(
     }
     const ogContext =
       `${getStartingPrompt(data[0].input)}\n\n${data[0].response_message}\n\n` +
+      // Grab the last 10 responses
       data
         .slice(1)
+        .reverse()
+        .slice(0, 10)
+        .reverse()
         .map((item) => `${item.input}\n\n${item.response_message}\n\n`)
         .join("");
     const context = `${ogContext}${prompt}\n\n`;

@@ -222,7 +222,7 @@ export default function Home() {
     const [chatGPT3Data, imagePrompt, messageWithoutImage] =
       await requestPrompt({
         prompt: currentInput,
-        lastId: chatHistory[0].id,
+        lastId: chatHistory[chatHistory.length - 1].id,
       });
 
     const displayedMessage = `You have choose "${currentInput}"\n\n${messageWithoutImage}`;
