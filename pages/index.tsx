@@ -238,20 +238,24 @@ export default function Home() {
       },
     ]);
 
-    setImageFor(scene, imagePrompt, requestId).then((imageUrl) => {
-      logCurrentSpot(
-        {
-          requestId,
-          currentInput,
-          imageUrl,
-          imagePrompt,
-          messageWithoutImage: displayedMessage,
-          rootId: chatHistory[0].id,
-        },
-        chatGPT3Data
-      );
-      onLogComplete();
-    });
+    setImageFor(scene, imagePrompt, requestId)
+      .then((imageUrl) => {
+        logCurrentSpot(
+          {
+            requestId,
+            currentInput,
+            imageUrl,
+            imagePrompt,
+            messageWithoutImage: displayedMessage,
+            rootId: chatHistory[0].id,
+          },
+          chatGPT3Data
+        );
+        onLogComplete();
+      })
+      .catch((e) => {
+        onLogComplete();
+      });
   }
   async function getInitialResponse(onLogComplete: () => void): Promise<void> {
     const requestId = uuidv4();
@@ -267,20 +271,24 @@ export default function Home() {
         id: requestId,
       },
     ]);
-    setImageFor(currentInput, imagePrompt, requestId).then((imageUrl) => {
-      logCurrentSpot(
-        {
-          requestId,
-          currentInput,
-          imageUrl,
-          imagePrompt,
-          messageWithoutImage,
-          rootId: requestId,
-        },
-        chatGPT3Data
-      );
-      onLogComplete();
-    });
+    setImageFor(currentInput, imagePrompt, requestId)
+      .then((imageUrl) => {
+        logCurrentSpot(
+          {
+            requestId,
+            currentInput,
+            imageUrl,
+            imagePrompt,
+            messageWithoutImage,
+            rootId: requestId,
+          },
+          chatGPT3Data
+        );
+        onLogComplete();
+      })
+      .catch((e) => {
+        onLogComplete();
+      });
   }
 
   function submitRequestToBackend() {
